@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Input Data Kesehatan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Input Data Kesehatan</h2>
+    <form id="healthForm">
+      <input type="number" id="tekanan" placeholder="Tekanan Darah" required>
+      <input type="number" id="gula" placeholder="Gula Darah" required>
+      <input type="number" id="berat" placeholder="Berat Badan (kg)" required>
+      <button type="submit">Simpan</button>
+    </form>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) window.location.href = "index.html";
+
+    document.getElementById("healthForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const tekanan = document.getElementById("tekanan").value;
+      const gula = document.getElementById("gula").value;
+      const berat = document.getElementById("berat").value;
+
+      fetch("https://script.google.com/macros/s/AKfycbx0lsgcaRo26PhN2Xm0K1sUablbWl_J5b8gjNpKVBG9jaJvHpVIk-83JRnvHzdBJqJtWA/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `action=input_health&email=${encodeURIComponent(user.email)}&tekanan_darah=${tekanan}&gula_darah=${gula}&berat_badan=${berat}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Data berhasil disimpan!");
+          window.location.href = "profile.html";
+        } else {
+          alert(data.message || "Gagal menyimpan data.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Terjadi kesalahan.");
+      });
+    });
+  </script>
+</body>
+</html>
