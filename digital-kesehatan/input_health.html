@@ -17,10 +17,25 @@
       padding: 20px;
       border-radius: 10px;
     }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
     input, button {
       width: 100%;
       padding: 10px;
-      margin-top: 10px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
@@ -28,9 +43,15 @@
   <div class="container">
     <h2>Input Data Kesehatan</h2>
     <form id="healthForm">
-      <input type="number" id="tekanan" placeholder="Tekanan Darah" required>
-      <input type="number" id="gula" placeholder="Gula Darah" required>
-      <input type="number" id="berat" placeholder="Berat Badan (kg)" required>
+      <label for="tekanan">Tekanan Darah</label>
+      <input type="number" id="tekanan" placeholder="Contoh: 120" required>
+
+      <label for="gula">Gula Darah</label>
+      <input type="number" id="gula" placeholder="Contoh: 90" required>
+
+      <label for="berat">Berat Badan (kg)</label>
+      <input type="number" id="berat" placeholder="Contoh: 65" required>
+
       <button type="submit">Simpan</button>
     </form>
   </div>
