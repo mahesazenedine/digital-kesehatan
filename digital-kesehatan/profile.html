@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Profil Pengguna</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    a.button {
+      display: inline-block;
+      margin-top: 15px;
+      margin-right: 10px;
+      padding: 10px 20px;
+      background-color: #6c63ff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    a.button:hover {
+      background-color: #554ee0;
+    }
+
+    .logout {
+      float: right;
+      font-size: 14px;
+      text-decoration: underline;
+      color: #555;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      color: #000;
+    }
+
+    #healthInfo {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    .button-group {
+      margin-top: 25px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logout" onclick="logout()">Logout</div>
+    <h2>Profil Pengguna</h2>
+
+    <div id="userInfo">
+      <p>Memuat data pengguna...</p>
+    </div>
+
+    <div id="healthInfo">
+      <h3>Riwayat Kesehatan Terbaru</h3>
+      <p>Memuat data kesehatan...</p>
+    </div>
+
+    <div class="button-group">
+      <a href="input_health.html" class="button">+ Tambah Data Kesehatan</a>
+      <a href="dashboard.html" class="button">← Kembali ke Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("userInfo").innerHTML = `
+        <p><strong>Nama:</strong> ${user.name}</p>
+        <p><strong>Umur:</strong> ${user.umur}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+      `;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    // Ganti URL ini dengan URL Web Apps kamu
+    const webAppURL = "https://script.google.com/macros/s/AKfycbx0lsgcaRo26PhN2Xm0K1sUablbWl_J5b8gjNpKVBG9jaJvHpVIk-83JRnvHzdBJqJtWA/exec";
+
+    fetch(webAppURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `action=get_health&email=${encodeURIComponent(user.email)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("healthInfo");
+      if (data.success && data.health.length > 0) {
+        const latest = data.health[0];
+        container.innerHTML += `
+          <p><strong>Tanggal:</strong> ${new Date(latest.timestamp).toLocaleString()}</p>
+          <p><strong>Tekanan Darah:</strong> ${latest.tekanan_darah}</p>
+          <p><strong>Gula Darah:</strong> ${latest.gula_darah}</p>
+          <p><strong>Berat Badan:</strong> ${latest.berat_badan} kg</p>
+        `;
+      } else {
+        container.innerHTML += `<p>Belum ada data kesehatan.</p>`;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("healthInfo").innerHTML += `<p>Gagal memuat data kesehatan.</p>`;
+    });
+  </script>
+
+</body>
+</html>

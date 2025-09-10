@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Digital Kesehatan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+      color: #333;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #6c63ff;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: 600;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      max-width: 800px;
+      margin: 0 auto 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div><strong>Digital Kesehatan</strong></div>
+    <div>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profile.html">Profil</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <h1 id="greeting">Selamat Datang!</h1>
+
+  <div class="chart-container">
+    <canvas id="bpChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="sugarChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="weightChart"></canvas>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("greeting").textContent = `Selamat datang, ${user.name}!`;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx0lsgcaRo26PhN2Xm0K1sUablbWl_J5b8gjNpKVBG9jaJvHpVIk-83JRnvHzdBJqJtWA/exec"; // Ganti dengan URL Web Apps kamu
+
+    fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `action=get_health&email=${encodeURIComponent(user.email)}`
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success || !res.health || res.health.length === 0) {
+        document.querySelectorAll('.chart-container').forEach(el => {
+          el.innerHTML = "<p style='text-align:center; color:red;'>Belum ada data kesehatan.</p>";
+        });
+        return;
+      }
+
+      const healthData = res.health.reverse(); // data terbaru di bawah
+
+      const labels = healthData.map(d => new Date(d.timestamp).toLocaleDateString());
+      const tekananDarah = healthData.map(d => parseFloat(d.tekanan_darah));
+      const gulaDarah = healthData.map(d => parseFloat(d.gula_darah));
+      const beratBadan = healthData.map(d => parseFloat(d.berat_badan));
+
+      // Tekanan Darah
+      new Chart(document.getElementById("bpChart"), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Tekanan Darah (mmHg)',
+            data: tekananDarah,
+            borderColor: '#6c63ff',
+            backgroundColor: 'rgba(108,99,255,0.2)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Riwayat Tekanan Darah' }
+          },
+          scales: {
+            y: { beginAtZero: false, suggestedMin: 90, suggestedMax: 160 }
+          }
+        }
+      });
+
+      // Gula Darah
+      new Chart(document.getElementById("sugarChart"), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Gula Darah (mg/dL)',
+            data: gulaDarah,
+            borderColor: '#ff6384',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Riwayat Gula Darah' }
+          },
+          scales: {
+            y: { beginAtZero: false, suggestedMin: 70, suggestedMax: 200 }
+          }
+        }
+      });
+
+      // Berat Badan
+      new Chart(document.getElementById("weightChart"), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Berat Badan (kg)',
+            data: beratBadan,
+            backgroundColor: '#36a2eb'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Riwayat Berat Badan' }
+          },
+          scales: {
+            y: { beginAtZero: true, suggestedMax: 100 }
+          }
+        }
+      });
+
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      document.querySelectorAll('.chart-container').forEach(el => {
+        el.innerHTML = "<p style='text-align:center; color:red;'>Gagal memuat data grafik.</p>";
+      });
+    });
+  </script>
+
+</body>
+</html>
