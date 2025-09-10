@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -31,7 +32,17 @@
     }
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+    .sub-text {
+      text-align: center;
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .animation {
+      width: 200px;
+      margin: 0 auto 20px auto;
     }
     .chart-container {
       max-width: 800px;
@@ -58,7 +69,19 @@
     </div>
   </nav>
 
+  <!-- Animasi Dokter -->
+  <div class="animation">
+    <lottie-player 
+      src="https://assets2.lottiefiles.com/packages/lf20_uuuh3h1j.json"  
+      background="transparent"  
+      speed="1"  
+      loop  
+      autoplay>
+    </lottie-player>
+  </div>
+
   <h1 id="greeting">Selamat Datang!</h1>
+  <p class="sub-text">Pantau kesehatanmu setiap hari 💙 Jaga pola hidup sehat untuk masa depan yang lebih baik!</p>
 
   <div class="chart-container">
     <canvas id="bpChart"></canvas>
@@ -75,7 +98,7 @@
     if (!user) {
       window.location.href = "index.html";
     } else {
-      document.getElementById("greeting").textContent = `Selamat datang, ${user.name}!`;
+      document.getElementById("greeting").textContent = `Selamat datang, ${user.name}! 👋`;
     }
 
     function logout() {
@@ -83,7 +106,7 @@
       window.location.href = "index.html";
     }
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbx0lsgcaRo26PhN2Xm0K1sUablbWl_J5b8gjNpKVBG9jaJvHpVIk-83JRnvHzdBJqJtWA/exec"; // Ganti dengan URL Web Apps kamu
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx0lsgcaRo26PhN2Xm0K1sUablbWl_J5b8gjNpKVBG9jaJvHpVIk-83JRnvHzdBJqJtWA/exec";
 
     fetch(scriptURL, {
       method: "POST",
@@ -99,8 +122,7 @@
         return;
       }
 
-      const healthData = res.health.reverse(); // data terbaru di bawah
-
+      const healthData = res.health.reverse(); 
       const labels = healthData.map(d => new Date(d.timestamp).toLocaleDateString());
       const tekananDarah = healthData.map(d => parseFloat(d.tekanan_darah));
       const gulaDarah = healthData.map(d => parseFloat(d.gula_darah));
